@@ -144,15 +144,37 @@ export async function GET() {
       ? defaults.model?.fallbacks || []
       : [];
 
-    const agentList = config.agents?.list || [];
+    let agentList = config.agents?.list || [];
     const bindings = config.bindings || [];
     const channels = config.channels || {};
     const feishuAccounts = channels.feishu?.accounts || {};
+
+    // Auto-discover agents from ~/.openclaw/agents/ when agents.list is empty
+    if (agentList.length === 0) {
+      try {
+        const agentsDir = path.join(OPENCLAW_DIR, "agents");
+        const dirs = fs.readdirSync(agentsDir, { withFileTypes: true });
+        agentList = dirs
+          .filter((d) => d.isDirectory() && !d.name.startsWith("."))
+          .map((d) => ({ id: d.name }));
+      } catch {}
+      // If still empty, at least include "main"
+      if (agentList.length === 0) {
+        agentList = [{ id: "main" }];
+      }
+    }
 
     // 从 OpenClaw sessions 文件获取每个 agent 飞书 DM 的用户 open_id
     const agentIds = agentList.map((a: any) => a.id);
     const feishuUserOpenIds = getFeishuUserOpenIds(agentIds);
     const discordDmAllowFrom = channels.discord?.dm?.allowFrom || [];
+
+    // Build a set of agent IDs that have explicit feishu bindings
+    const boundFeishuAgentIds = new Set(
+      bindings
+        .filter((b: any) => b.match?.channel === "feishu")
+        .map((b: any) => b.agentId)
+    );
 
     // 构建 agent 详情
     const agents = await Promise.all(agentList.map(async (agent: any) => {
@@ -165,7 +187,7 @@ export async function GET() {
       // 查找绑定的平台
       const platforms: { name: string; accountId?: string; appId?: string; botOpenId?: string; botUserId?: string }[] = [];
 
-      // 检查飞书绑定
+      // 检查飞书绑定 (explicit binding)
       const feishuBinding = bindings.find(
         (b: any) => b.agentId === id && b.match?.channel === "feishu"
       );
@@ -177,9 +199,19 @@ export async function GET() {
         platforms.push({ name: "feishu", accountId, appId, ...(userOpenId && { botOpenId: userOpenId }) });
       }
 
+      // If no explicit binding, check if there's a feishu account matching this agent id
+      if (!feishuBinding && feishuAccounts[id]) {
+        const acc = feishuAccounts[id];
+        const appId = acc?.appId;
+        const userOpenId = feishuUserOpenIds[id] || null;
+        platforms.push({ name: "feishu", accountId: id, appId, ...(userOpenId && { botOpenId: userOpenId }) });
+      }
+
       // main agent 特殊处理：默认绑定所有未显式绑定的 channel
       if (id === "main") {
-        if (!feishuBinding && channels.feishu?.enabled) {
+        const hasFeishu = platforms.some((p) => p.name === "feishu");
+        if (!hasFeishu && channels.feishu?.enabled) {
+          // main gets feishu if channel is enabled and no other detection matched
           const acc = feishuAccounts["main"];
           const appId = acc?.appId || channels.feishu?.appId;
           const userOpenId = feishuUserOpenIds["main"] || null;
@@ -188,6 +220,16 @@ export async function GET() {
         if (channels.discord?.enabled) {
           const botUserId = discordDmAllowFrom[0] || null;
           platforms.push({ name: "discord", ...(botUserId && { botUserId }) });
+        }
+      }
+
+      // Also detect discord for non-main agents if they have discord bindings
+      if (id !== "main") {
+        const discordBinding = bindings.find(
+          (b: any) => b.agentId === id && b.match?.channel === "discord"
+        );
+        if (discordBinding) {
+          platforms.push({ name: "discord" });
         }
       }
 
