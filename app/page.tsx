@@ -273,7 +273,7 @@ function AgentCard({ agent, gatewayPort, gatewayToken, t, testResult, platformTe
         {agent.name !== agent.id && (
           <div>
             <span className="text-xs text-[var(--text-muted)] block mb-1">Agent ID</span>
-            <span className="text-sm text-[var(--text)]">{agent.id}</span>
+            <code className="text-xs text-[var(--accent)] bg-[var(--bg)] px-2 py-0.5 rounded">{agent.id}</code>
           </div>
         )}
         <div>
