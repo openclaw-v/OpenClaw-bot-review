@@ -21,6 +21,19 @@ const translations: Record<Locale, Record<string, string>> = {
     "nav.skills": "技能管理",
     "nav.alerts": "告警中心",
 
+    // alerts page
+    "alerts.title": "告警中心",
+    "alerts.subtitle": "配置系统告警和通知",
+    "alerts.enableAlerts": "启用告警",
+    "alerts.enableDesc": "开启/关闭所有告警通知",
+    "alerts.receiveAgent": "接收告警的机器人",
+    "alerts.rules": "告警规则",
+    "alerts.rulesDesc": "配置哪些条件会触发告警",
+    "alerts.triggered": "告警触发 ({count})",
+    "alerts.checking": "正在检查告警...",
+    "alerts.checkNow": "立即检查",
+    "alerts.checkInterval": "检查间隔",
+
     // common
     "common.loading": "加载中...",
     "common.loadError": "加载失败",
@@ -187,6 +200,19 @@ const translations: Record<Locale, Record<string, string>> = {
     "nav.config": "Config",
     "nav.skills": "Skills",
     "nav.alerts": "Alerts",
+
+    // alerts page
+    "alerts.title": "Alert Center",
+    "alerts.subtitle": "Configure system alerts and notifications",
+    "alerts.enableAlerts": "Enable Alerts",
+    "alerts.enableDesc": "Turn on/off all alert notifications",
+    "alerts.receiveAgent": "Receive Alert Agent",
+    "alerts.rules": "Alert Rules",
+    "alerts.rulesDesc": "Configure which conditions trigger alerts",
+    "alerts.triggered": "Alerts Triggered ({count})",
+    "alerts.checking": "Checking alerts...",
+    "alerts.checkNow": "Check Now",
+    "alerts.checkInterval": "Check Interval",
 
     // common
     "common.loading": "Loading...",
