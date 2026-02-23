@@ -47,16 +47,14 @@ function getGatewayConfig() {
   }
 }
 
-// 发送告警消息到 agent
+// 发送告警消息到 agent (fire and forget)
 async function sendAlert(agentId: string, message: string) {
   const gateway = getGatewayConfig();
   const sessionKey = `agent:${agentId}:main`;
   
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
-    
-    const resp = await fetch(`http://127.0.0.1:${gateway.port}/v1/chat/completions`, {
+    // Fire and forget - 不等待响应
+    fetch(`http://127.0.0.1:${gateway.port}/v1/chat/completions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -65,21 +63,18 @@ async function sendAlert(agentId: string, message: string) {
       body: JSON.stringify({
         session: sessionKey,
         messages: [
-          { role: "user", content: message }
+          { role: "user", content: `🔔 告警通知: ${message}` }
         ],
       }),
-      signal: controller.signal,
+    }).then(resp => {
+      if (resp.ok) {
+        console.log(`[ALERT] Sent to ${agentId}: ${message}`);
+      }
+    }).catch(err => {
+      console.error(`[ALERT] Error sending to ${agentId}:`, err.message);
     });
     
-    clearTimeout(timeout);
-    
-    if (resp.ok) {
-      console.log(`[ALERT] Sent to ${agentId}: ${message}`);
-      return { sent: true, message };
-    } else {
-      console.error(`[ALERT] Failed to send to ${agentId}:`, resp.statusText);
-      return { sent: false, error: resp.statusText };
-    }
+    return { sent: true, message };
   } catch (err: any) {
     console.error(`[ALERT] Error sending to ${agentId}:`, err.message);
     return { sent: false, error: err.message };
