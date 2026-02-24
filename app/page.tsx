@@ -260,8 +260,7 @@ function AgentCard({ agent, gatewayPort, gatewayToken, t, testResult, platformTe
 
   return (
     <div
-      onClick={() => window.open(sessionUrl, "_blank")}
-      className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 hover:border-[var(--accent)] transition-colors cursor-pointer"
+      className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 hover:border-[var(--accent)] transition-colors"
     >
       <div className="flex items-center gap-3 mb-3">
         <span className="text-3xl">{agent.emoji}</span>
@@ -274,7 +273,10 @@ function AgentCard({ agent, gatewayPort, gatewayToken, t, testResult, platformTe
         <div>
           <span className="text-xs text-[var(--text-muted)] block mb-1">Agent ID</span>
           <div className="flex items-center gap-2">
-            <code className="text-xs text-[var(--accent)] bg-[var(--bg)] px-2 py-0.5 rounded">{agent.id}</code>
+            <a href={sessionUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium cursor-pointer transition-all hover:scale-105 hover:shadow-md bg-[var(--accent)]/20 text-[var(--accent)] border border-[var(--accent)]/30 hover:bg-[var(--accent)]/40">
+              {agent.id}
+              <span className="opacity-50 text-[10px]">↗</span>
+            </a>
             {sessionTestResult === undefined ? (
               <span className="text-xs text-[var(--text-muted)]">--</span>
             ) : sessionTestResult === null ? (
