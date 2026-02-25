@@ -427,15 +427,48 @@ export default function PixelOfficePage() {
       // Normal mode: hover detection
       const id = office.getCharacterAt(worldX, worldY)
       setHoveredAgentId(id)
+      // Pointer cursor on camera furniture
+      const tileX = worldX / TILE_SIZE
+      const tileY = worldY / TILE_SIZE
+      const onCamera = office.layout.furniture.some(f => {
+        if (f.type !== 'camera') return false
+        const entry = getCatalogEntry(f.type)
+        if (!entry) return false
+        return tileX >= f.col && tileX < f.col + entry.footprintW &&
+               tileY >= f.row && tileY < f.row + entry.footprintH
+      })
+      if (canvasRef.current) canvasRef.current.style.cursor = onCamera ? 'pointer' : 'default'
     }
   }
 
+  const PHOTO_COUNT = 13
   const handleMouseDown = (e: React.MouseEvent) => {
     unlockAudio()
     if (!canvasRef.current || !officeRef.current) return
     const office = officeRef.current
     const editor = editorRef.current
-    if (!editor.isEditMode) return
+    if (!editor.isEditMode) {
+      // Non-edit mode: check camera click
+      if (e.button === 0) {
+        const { worldX, worldY } = mouseToTile(e, canvasRef.current, office, zoomRef.current, panRef.current)
+        const tileX = worldX / TILE_SIZE
+        const tileY = worldY / TILE_SIZE
+        const clickedCamera = office.layout.furniture.find(f => {
+          if (f.type !== 'camera') return false
+          const entry = getCatalogEntry(f.type)
+          if (!entry) return false
+          return tileX >= f.col && tileX < f.col + entry.footprintW &&
+                 tileY >= f.row && tileY < f.row + entry.footprintH
+        })
+        if (clickedCamera) {
+          const idx = Math.floor(Math.random() * PHOTO_COUNT) + 1
+          const img = new Image()
+          img.src = `/assets/pixel-office/my-photographic-works/${idx}.webp`
+          img.onload = () => { photographRef.current = img }
+        }
+      }
+      return
+    }
     const { col, row } = mouseToTile(e, canvasRef.current, office, zoomRef.current, panRef.current)
 
     if (e.button === 0) {
