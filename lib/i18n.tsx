@@ -204,6 +204,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "gateway.fetchError": "无法检查 Gateway 状态",
 
     // pixel office
+    "pixelOffice.title": "OpenClaw Agents 两室一厅办公室",
     "pixelOffice.editMode": "编辑布局",
     "pixelOffice.exitEdit": "退出编辑",
     "pixelOffice.save": "保存",
@@ -415,6 +416,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "gateway.fetchError": "Cannot check Gateway status",
 
     // pixel office
+    "pixelOffice.title": "OpenClaw Agents Two-Room Office",
     "pixelOffice.editMode": "Edit Layout",
     "pixelOffice.exitEdit": "Exit Edit",
     "pixelOffice.save": "Save",

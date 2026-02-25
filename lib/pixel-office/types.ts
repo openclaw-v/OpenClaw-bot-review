@@ -73,6 +73,8 @@ export interface FurnitureInstance {
   zY: number
   /** Optional emoji to render instead of sprite */
   emoji?: string
+  /** Rotation in degrees for emoji rendering */
+  rotation?: number
 }
 
 export interface ToolActivity {
@@ -147,6 +149,8 @@ export interface PlacedFurniture {
   col: number
   row: number
   color?: FloorColor
+  /** Rotation in degrees (0, 90, 180, 270) for emoji furniture */
+  rotation?: number
 }
 
 export interface OfficeLayout {

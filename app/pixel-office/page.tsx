@@ -600,6 +600,7 @@ export default function PixelOfficePage() {
     <div className="flex flex-col h-full">
       {/* Top bar: agent tags + controls */}
       <div className="flex flex-wrap items-center gap-2 p-4 border-b border-[var(--border)]">
+        <span className="text-sm font-bold text-[var(--text)] mr-2">{t('pixelOffice.title')}</span>
         <div className="flex flex-wrap gap-2 flex-1">
           {agents.map(agent => (
             <div key={agent.agentId} className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-colors ${

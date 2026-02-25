@@ -74,7 +74,7 @@ export function layoutToFurnitureInstances(furniture: PlacedFurniture[]): Furnit
       sprite = getColorizedSprite(`furn-${item.type}-${h}-${s}-${bv}-${cv}-${item.color.colorize ? 1 : 0}`, entry.sprite, item.color)
     }
 
-    instances.push({ sprite, x, y, zY, ...(entry.emoji ? { emoji: entry.emoji } : {}) })
+    instances.push({ sprite, x, y, zY, ...(entry.emoji ? { emoji: entry.emoji } : {}), ...(item.rotation ? { rotation: item.rotation } : {}) })
   }
   return instances
 }
@@ -292,10 +292,10 @@ export function createDefaultLayout(): OfficeLayout {
     { uid: 'plant-l1', type: FurnitureType.PLANT, col: 1, row: 1 },
     { uid: 'plant-l2', type: FurnitureType.PLANT_SMALL, col: 9, row: 1 },
     { uid: 'lamp-l', type: FurnitureType.LAMP, col: 1, row: 3 },
-    { uid: 'pc-l1', type: FurnitureType.PC_BACK, col: 3.5, row: 3 },
-    { uid: 'pc-l2', type: FurnitureType.PC_BACK, col: 6.5, row: 3 },
-    { uid: 'pc-l3', type: FurnitureType.PC, col: 3.5, row: 6 },
-    { uid: 'pc-l4', type: FurnitureType.PC, col: 6.5, row: 6 },
+    { uid: 'pc-l1', type: FurnitureType.PC, col: 3.5, row: 2.75, rotation: 180 },
+    { uid: 'pc-l2', type: FurnitureType.PC, col: 6.5, row: 2.75, rotation: 180 },
+    { uid: 'pc-l3', type: FurnitureType.PC, col: 3.5, row: 5.5 },
+    { uid: 'pc-l4', type: FurnitureType.PC, col: 6.5, row: 5.5 },
 
     // ── Right work room ──
     { uid: 'desk-r1', type: FurnitureType.DESK, col: 13, row: 3 },
@@ -303,7 +303,7 @@ export function createDefaultLayout(): OfficeLayout {
     { uid: 'chair-r1-bottom', type: FurnitureType.CHAIR, col: 14, row: 5 },
     { uid: 'chair-r1-left', type: FurnitureType.CHAIR, col: 12, row: 4 },
     { uid: 'chair-r1-right', type: FurnitureType.CHAIR, col: 15, row: 3 },
-    { uid: 'pc-r', type: FurnitureType.PC, col: 14, row: 3 },
+    { uid: 'pc-r', type: FurnitureType.PC, col: 14, row: 2.5, rotation: 90 },
     { uid: 'camera-r', type: FurnitureType.CAMERA, col: 13.5, row: 3.5 },
     { uid: 'plant-r1', type: FurnitureType.PLANT, col: 19, row: 1 },
     { uid: 'whiteboard-r', type: FurnitureType.WHITEBOARD, col: 15, row: 0 },

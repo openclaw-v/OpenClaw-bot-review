@@ -152,19 +152,29 @@ export function renderScene(
           c.font = `${emojiSize * 0.7}px serif`
           c.textAlign = 'center'
           c.textBaseline = 'middle'
-          c.fillText(f.emoji!, emojiX, emojiY)
+          if (f.rotation) {
+            c.save()
+            c.translate(emojiX, emojiY)
+            c.rotate((f.rotation * Math.PI) / 180)
+            c.fillText(f.emoji!, 0, 0)
+            c.restore()
+          } else {
+            c.fillText(f.emoji!, emojiX, emojiY)
+          }
 
           // Camera flash effect: brief white burst every 10 seconds
-          const flashCycle = (Date.now() % 10000) / 10000
-          if (flashCycle < 0.03) {
-            const flashAlpha = 1 - flashCycle / 0.03
-            const flashR = emojiSize * 1.5
-            const grad = c.createRadialGradient(emojiX, emojiY, 0, emojiX, emojiY, flashR)
-            grad.addColorStop(0, `rgba(255,255,255,${flashAlpha * 0.9})`)
-            grad.addColorStop(0.3, `rgba(255,255,200,${flashAlpha * 0.5})`)
-            grad.addColorStop(1, `rgba(255,255,200,0)`)
-            c.fillStyle = grad
-            c.fillRect(emojiX - flashR, emojiY - flashR, flashR * 2, flashR * 2)
+          if (f.emoji === '📷') {
+            const flashCycle = (Date.now() % 10000) / 10000
+            if (flashCycle < 0.03) {
+              const flashAlpha = 1 - flashCycle / 0.03
+              const flashR = emojiSize * 1.5
+              const grad = c.createRadialGradient(emojiX, emojiY, 0, emojiX, emojiY, flashR)
+              grad.addColorStop(0, `rgba(255,255,255,${flashAlpha * 0.9})`)
+              grad.addColorStop(0.3, `rgba(255,255,200,${flashAlpha * 0.5})`)
+              grad.addColorStop(1, `rgba(255,255,200,0)`)
+              c.fillStyle = grad
+              c.fillRect(emojiX - flashR, emojiY - flashR, flashR * 2, flashR * 2)
+            }
           }
         },
       })
