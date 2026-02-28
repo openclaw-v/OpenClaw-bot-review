@@ -94,6 +94,7 @@ export function createCharacter(
     matrixEffectSeeds: [],
     interactionTarget: null,
     isCat: false,
+    isLobster: false,
     codeSnippets: [],
     photoComments: [],
     isViewingPhoto: false,
@@ -111,8 +112,8 @@ export function updateCharacter(
 ): void {
   ch.frameTimer += dt
 
-  // Cat-specific update: always wander, never sit
-  if (ch.isCat) {
+  // Pet-specific update: always wander, never sit
+  if (ch.isCat || ch.isLobster) {
     updateCat(ch, dt, walkableTiles, tileMap, blockedTiles)
     return
   }

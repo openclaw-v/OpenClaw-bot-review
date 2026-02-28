@@ -101,6 +101,7 @@ export class OfficeState {
   subagentMeta: Map<number, { parentAgentId: number; parentToolId: string }> = new Map()
   private nextSubagentId = -1
   private static CAT_ID = -9999
+  private static LOBSTER_ID = -9998
 
   constructor(layout?: OfficeLayout) {
     this.layout = layout || createDefaultLayout()
@@ -112,6 +113,7 @@ export class OfficeState {
     this.interactionPoints = getInteractionPoints(this.layout.furniture, this.tileMap, this.blockedTiles)
     this.doorwayTiles = getDoorwayTiles(this.layout)
     this.spawnCat()
+    this.spawnLobster()
   }
 
   /** Rebuild all derived state from a new layout. Reassigns existing characters.
@@ -344,6 +346,24 @@ export class OfficeState {
       : { col: 1, row: 1 }
     const ch = createCharacter(id, 0, null, null, 0)
     ch.isCat = true
+    ch.tileCol = spawn.col
+    ch.tileRow = spawn.row
+    ch.x = spawn.col * TILE_SIZE + TILE_SIZE / 2
+    ch.y = spawn.row * TILE_SIZE + TILE_SIZE / 2
+    ch.state = CharacterState.IDLE
+    ch.wanderTimer = 1 + Math.random() * 3
+    this.characters.set(id, ch)
+  }
+
+  /** Spawn the office lobster at a random walkable tile */
+  spawnLobster(): void {
+    const id = OfficeState.LOBSTER_ID
+    if (this.characters.has(id)) return
+    const spawn = this.walkableTiles.length > 0
+      ? this.walkableTiles[Math.floor(Math.random() * this.walkableTiles.length)]
+      : { col: 1, row: 1 }
+    const ch = createCharacter(id, 0, null, null, 0)
+    ch.isLobster = true
     ch.tileCol = spawn.col
     ch.tileRow = spawn.row
     ch.x = spawn.col * TILE_SIZE + TILE_SIZE / 2
@@ -754,7 +774,7 @@ export class OfficeState {
       }
 
       // Photo comment particles for characters viewing the photograph
-      if (ch.isViewingPhoto && ch.state === CharacterState.IDLE && !ch.isCat) {
+      if (ch.isViewingPhoto && ch.state === CharacterState.IDLE && !ch.isCat && !ch.isLobster) {
         for (const pc of ch.photoComments) pc.age += dt
         ch.photoComments = ch.photoComments.filter(pc => pc.age < PHOTO_COMMENT_LIFETIME)
         if (ch.photoComments.length < 2 && Math.random() < dt * PHOTO_COMMENT_SPAWN_RATE) {
@@ -778,7 +798,7 @@ export class OfficeState {
       }
 
       // Code snippet particles for working characters
-      if (ch.isActive && ch.state === CharacterState.TYPE && !ch.isCat) {
+      if (ch.isActive && ch.state === CharacterState.TYPE && !ch.isCat && !ch.isLobster) {
         // Age existing snippets and remove expired ones
         for (const s of ch.codeSnippets) s.age += dt
         ch.codeSnippets = ch.codeSnippets.filter(s => s.age < CODE_SNIPPET_LIFETIME)
@@ -809,9 +829,9 @@ export class OfficeState {
   getCharacterAt(worldX: number, worldY: number): number | null {
     const chars = this.getCharacters().sort((a, b) => b.y - a.y)
     for (const ch of chars) {
-      // Skip characters that are despawning or cats
+      // Skip characters that are despawning or pets
       if (ch.matrixEffect === 'despawn') continue
-      if (ch.isCat) continue
+      if (ch.isCat || ch.isLobster) continue
       // Character sprite is 16x24, anchored bottom-center
       // Apply sitting offset to match visual position
       const sittingOffset = ch.state === CharacterState.TYPE ? CHARACTER_SITTING_OFFSET_PX : 0

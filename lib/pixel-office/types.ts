@@ -199,6 +199,7 @@ export interface Character {
   matrixEffectSeeds: number[]
   interactionTarget: { col: number; row: number; facingDir: Direction; furnitureType?: string } | null
   isCat: boolean
+  isLobster: boolean
   codeSnippets: Array<{ text: string; age: number; x: number; y: number }>
   photoComments: Array<{ text: string; age: number; x: number }>
   isViewingPhoto: boolean

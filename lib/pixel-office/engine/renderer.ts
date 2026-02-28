@@ -1,4 +1,4 @@
-import { TileType, TILE_SIZE, CharacterState } from '../types'
+import { TileType, TILE_SIZE, CharacterState, Direction } from '../types'
 import type { TileType as TileTypeVal, FurnitureInstance, Character, SpriteData, Seat, FloorColor } from '../types'
 import { getCachedSprite, getOutlineSprite } from '../sprites/spriteCache'
 import { getCharacterSprites, BUBBLE_PERMISSION_SPRITE, BUBBLE_WAITING_SPRITE } from '../sprites/spriteData'
@@ -297,6 +297,32 @@ export function renderScene(
 
   // Characters
   for (const ch of characters) {
+    const charZY = ch.y + TILE_SIZE / 2 + CHARACTER_Z_SORT_OFFSET
+
+    if (ch.isLobster) {
+      const lobsterX = Math.round(offsetX + ch.x * zoom)
+      const lobsterY = Math.round(offsetY + ch.y * zoom + 2 * zoom)
+      const lobsterAngle =
+        ch.dir === Direction.RIGHT ? Math.PI / 2 :
+        ch.dir === Direction.DOWN ? Math.PI :
+        ch.dir === Direction.LEFT ? -Math.PI / 2 :
+        0
+      drawables.push({
+        zY: charZY,
+        draw: (c) => {
+          c.save()
+          c.translate(lobsterX, lobsterY)
+          c.rotate(lobsterAngle)
+          c.textAlign = 'center'
+          c.textBaseline = 'middle'
+          c.font = `${Math.max(14, Math.round(9 * zoom))}px serif`
+          c.fillText('🦞', 0, 0)
+          c.restore()
+        },
+      })
+      continue
+    }
+
     const sprites = ch.isCat ? getCatSprites() : getCharacterSprites(ch.palette, ch.hueShift)
     const spriteData = getCharacterSprite(ch, sprites)
     const cached = getCachedSprite(spriteData, zoom)
@@ -309,7 +335,6 @@ export function renderScene(
     // Sort characters by bottom of their tile (not center) so they render
     // in front of same-row furniture (e.g. chairs) but behind furniture
     // at lower rows (e.g. desks, bookshelves that occlude from below).
-    const charZY = ch.y + TILE_SIZE / 2 + CHARACTER_Z_SORT_OFFSET
 
     // Matrix spawn/despawn effect — skip outline, use per-pixel rendering
     if (ch.matrixEffect) {
