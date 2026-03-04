@@ -169,6 +169,7 @@ const MOBILE_MAX_ZOOM = 6
 const MOBILE_FIT_PADDING_PX = 2
 const MOBILE_TOP_EXTRA_TILES = 0.5
 const MOBILE_VIEW_NUDGE_Y_PX = -10
+const DESKTOP_TOP_EXTRA_TILES = 0.5
 const CODE_SNIPPET_LIFETIME_SEC = 5.5
 const SRE_BLACKWORD_MAX_FLOAT_DIST_PX = 320
 const FLOATING_TICK_INTERVAL_DESKTOP_MS = 48
@@ -476,8 +477,19 @@ export default function PixelOfficePage() {
         panRef.current = { x: 0, y: Math.round(targetPanY) }
       } else {
         zoomRef.current = DESKTOP_CANVAS_ZOOM
-        if (panRef.current.x !== 0 || panRef.current.y !== 0) {
-          panRef.current = { x: 0, y: 0 }
+        const layout = office.layout
+        const rows = layout.rows
+        const mapH = rows * TILE_SIZE * zoomRef.current
+        const centerOffsetY = (height - mapH) / 2
+        const topExtraPx = DESKTOP_TOP_EXTRA_TILES * TILE_SIZE * zoomRef.current
+        const minPanY = topExtraPx - centerOffsetY
+        const maxPanY = height - (centerOffsetY + mapH)
+        const targetPanY = minPanY > maxPanY
+          ? minPanY
+          : Math.min(maxPanY, Math.max(minPanY, 0))
+        const nextPanY = Math.round(targetPanY)
+        if (panRef.current.x !== 0 || panRef.current.y !== nextPanY) {
+          panRef.current = { x: 0, y: nextPanY }
         }
       }
       const dpr = window.devicePixelRatio || 1
